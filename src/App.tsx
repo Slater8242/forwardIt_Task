@@ -44,13 +44,12 @@ function App() {
   const countries: readonly CountryType[] = data?.countries.map((country: CountryType) => country);
   
   useEffect(()=>{
-    data?.countries.map((country: CountryType) => country.phone === phoneNumber ? setCountryName(country.name) : "");
+    data?.countries.map((country: CountryType) => country.phone === phoneNumber.replace('+', '') ? setCountryName(country.name) : "");
     console.log(phoneNumber);
   }, [phoneNumber, data?.countries])
   
   useEffect(()=>{
     data?.countries.map((country: CountryType) => country.name === countryName ? setPhoneNumber("+"+country.phone) : "");
-    '+'.concat(countryName)
     console.log(countryName);
   }, [countryName, data?.countries])
 
