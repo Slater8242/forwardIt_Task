@@ -42,6 +42,23 @@ function App() {
       .then((cityIp) => data?.countries.map((country: CountryType) => country.code === cityIp.country ? setCountryName(country.name) : undefined));
   }, [data?.countries])
 
+  const sendData = () =>{
+    fetch("http://localhost:8000/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        number: phoneNumber
+      })
+    }).then((res) => res.json())
+      .then((data) => console.log(data));
+
+    fetch("http://localhost:8000/")
+      .then((res) => res.json())
+      .then((data) => console.log(data.message));
+  }
+
   const countries: readonly CountryType[] = data?.countries.map((country: CountryType) => country);
   
   useEffect(()=>{
@@ -63,62 +80,67 @@ function App() {
 
   return (
     <>
-      <Grid
-        container
-        spacing={2}
-        direction="column"
-        justifyContent="center"
-        alignContent="center"
-        alignItems="center" 
-        height="100vh"
-      >
-        <Grid item>
-          <Autocomplete
-            multiple={false}
-            id="country-select"
-            value={{ name: countryName }}
-            sx={{ width: 300 }}
-            options={countries}
-            isOptionEqualToValue={(option, value) => option.name === value.name}
-            onChange={(event: any, newValue: CountryType | null) => newValue === null ? setCountryName("") : setCountryName(newValue.name)}
-            getOptionLabel={(option: CountryType) => option.name}
-            renderOption={(props, option) => (
-              <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
-                <img
-                  loading="lazy"
-                  width="20"
-                  src={`https://flagcdn.com/w20/${option.code.toLowerCase()}.png`}
-                  srcSet={`https://flagcdn.com/w40/${option.code.toLowerCase()}.png 2x`}
-                  alt=""
+      <form>
+        <Grid
+          container
+          spacing={2}
+          direction="column"
+          justifyContent="center"
+          alignContent="center"
+          alignItems="center" 
+          height="100vh"
+        >
+          <Grid item>
+            <Autocomplete
+              multiple={false}
+              id="country-select"
+              value={{ name: countryName }}
+              sx={{ width: 300 }}
+              options={countries}
+              isOptionEqualToValue={(option, value) => option.name === value.name}
+              onChange={(event: any, newValue: CountryType | null) => newValue === null ? setCountryName("") : setCountryName(newValue.name)}
+              getOptionLabel={(option: CountryType) => option.name}
+              renderOption={(props, option) => (
+                <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                  <img
+                    loading="lazy"
+                    width="20"
+                    src={`https://flagcdn.com/w20/${option.code.toLowerCase()}.png`}
+                    srcSet={`https://flagcdn.com/w40/${option.code.toLowerCase()}.png 2x`}
+                    alt=""
+                  />
+                  {option.name} ({option.code}) +{option.phone}
+                </Box>
+              )}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Country"
+                  inputProps={{
+                    ...params.inputProps,
+                    autoComplete: 'country', // disable autocomplete and autofill
+                  }}
                 />
-                {option.name} ({option.code}) +{option.phone}
-              </Box>
-            )}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Country"
-                inputProps={{
-                  ...params.inputProps,
-                  autoComplete: 'country', // disable autocomplete and autofill
-                }}
-              />
-            )}
-          />
+              )}
+            />
+          </Grid>
+          <Grid item>
+            <TextField
+              id="country-input"
+              sx={{ width: 300 }}
+              label="Your phone number"
+              value={phoneNumber}
+              onChange={(event: ChangeEvent<HTMLInputElement>) => setPhoneNumber(event.target.value.slice(0, 16).replace(/(?!\+)\D/, ""))}
+            />
+          </Grid>
+          <Grid item>
+            <Button 
+              variant="contained"
+              onClick={sendData}
+            >Next</Button>
+          </Grid>
         </Grid>
-        <Grid item>
-          <TextField
-            id="country-input"
-            sx={{ width: 300 }}
-            label="Your phone number"
-            value={phoneNumber}
-            onChange={(event: ChangeEvent<HTMLInputElement>) => setPhoneNumber(event.target.value.slice(0, 16).replace(/(?!\+)\D/, ""))}
-          />
-        </Grid>
-        <Grid item>
-          <Button variant="contained">Next</Button>
-        </Grid>
-      </Grid>
+      </form>
     </>
   );
 }
